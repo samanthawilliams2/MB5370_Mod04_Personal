@@ -2,7 +2,7 @@
 title: "MB5370 Module 04. Workshop 1 - Introduction"
 author: "Samantha Williams"
 output: html_document
-date: "2024-03-22"
+date: "2025-03-19"
 ---
 
 ```{r setup, include=FALSE}
@@ -13,32 +13,32 @@ knitr::opts_chunk$set(echo = TRUE)
 # Install and load tidyverse packages
 ```{r}
 ## install.packages("tidyverse") # Delete this line once installed
-library("tidyverse")
+#library("tidyverse")
 ```
 
 
 # Load the data (mpg is built into ggplot2)
 ```{r}
-data(mpg)
+data(mpg) 
 ```
 
 
 # Quick data checks
 ```{r}
-head(mpg)
-glimpse(mpg)
-summary(mpg)
+head(mpg) # creates a tibble
+glimpse(mpg) # see every column in the data frame
+summary(mpg) # provides a function summary 
 ```
 
 
 # Create first plot
 ```{r}
 ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = disp, y = hwy))
+  geom_point(mapping = aes(x = displ, y = hwy)) # shows a very basic plot for engiine size and fuel efficiency.
 ```
 
 The plot shows a negative relationship between engine size (displ) and fuel efficiency (hwy). In other words, cars with big engines use more fuel. What does this say about fuel efficiency and engine size?
-
+As engine size increases, fuel efficiency decreases. 
 
 
 # Understanding grammar of graphics
@@ -46,28 +46,22 @@ What happens if we just try to run ggplot on its own?
 ```{r}
 ggplot() 
 # Or with just the data specified?
-ggplot(data = mpg)
+ggplot(data = mpg) # when only ggplot is run on it's own it doesn't do anything, as it hasn't been told to do anything with the data. 
 ```
 
 We need to map some aesthetics!!
 
 # When you’re creating a plot, you essentially need two attributes of a plot: a geom and aesthetics.
-```{r}
-ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy, colour = class))
-```
-
-
 # Change point colour by class:
 ```{r}
 ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy, colour = class))
+  geom_point(mapping = aes(x = displ, y = hwy, colour = class)) # creats a scatter plot with colours for each class.
 ```
 
 # Change point size by class:
 ```{r}
 ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy, size = class))
+  geom_point(mapping = aes(x = displ, y = hwy, size = class)) # creates a warning message: using size for a discrete variable is not advised. 
 ```
 Note the warning!!!
 
@@ -75,40 +69,47 @@ Note the warning!!!
 # Change transparency (alpha) by class
 ```{r}
 ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy, alpha = class))
+  geom_point(mapping = aes(x = displ, y = hwy, alpha = class)) # changes gradient of points with no colour
+# warning message: using alpha for a discrete variable is not advised. 
 ```
 Another warning!!
 Question: When would using alpha (or size be appropriate??)
+It would be appropriate when using continuous values or to see overlapping values so you can see more. 
 
 # Change point shape by class:
 ```{r}
 ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy, shape = class))
+  geom_point(mapping = aes(x = displ, y = hwy, shape = class)) # creates a really messy graph
 ```
 
 
 # Make all points blue
 ```{r}
 ggplot(data = mpg) + 
-  geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+  geom_point(mapping = aes(x = displ, y = hwy), color = "blue") #all points are blue
 ```
 
 
 # Troubleshooting 
 
+```{r}
+#ggplot(data = mpg) 
+#+ geom_point(mapping = aes(x = displ, y = hwy)) 
+# the + should be on top line
 
-
-
-
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x = displ, y = hwy)) # correct code
+# the + should be on top line
+```
 
 # Faceting
-
+A common practice is to break a single complex plot into many sub plots to develop separate plots for a range of reasons, i.e., to show a subset of data.
 ## facet_wrap
 Split the plot out by car type (class)
 ```{r}
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy)) + 
-  facet_wrap(~ class, nrow = 2)
+  facet_wrap(~ class, nrow = 2) # creates 7 basic smaller graphs sorted by class
 ```
 
 
@@ -117,7 +118,7 @@ A separate facet for each combination of drive-type (e.g. 4WD) * number of cylin
 ```{r}
 ggplot(data = mpg) + 
   geom_point(mapping = aes(x = displ, y = hwy)) + 
-  facet_grid(drv ~ cyl)
+  facet_grid(drv ~ cyl) # confusing to read 
 ```
 Note that there are no occurrences of 5 cylinder 4WDs OR RWD vehicles!
 
