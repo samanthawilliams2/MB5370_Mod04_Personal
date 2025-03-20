@@ -82,22 +82,106 @@ ggplot() +
 ```
 
 ```{r}
-ggplot(data_combined, aes(x = Transects, y = NewSpecies, color = Method)) +
+ggplot(data_combined, aes(x = Transects, y = NewSpecies, color = Method, fill = Method)) +
   geom_point() +
-  geom_smooth() +
-  labs(x = "Number of Transects", y = "N New Species") +
-  theme_minimal() +  # Ensures the full box around the plot
+  geom_smooth(method = "loess", se = TRUE, level = 0.99, linewidth = 1, alpha = 0.5) +
+  labs(x = "Transects (N)", y = "New Species (N)") +
+  theme_minimal() + 
   theme(
     panel.border = element_rect(color = "black", fill = NA, size = 1),  
-    axis.text = element_text(size = 10),
+    axis.text = element_text(size = 12),
     axis.title = element_text(size = 12, face = "bold"),
     legend.title = element_text(size = 12, face = "bold"),
-    legend.text = element_text(size = 10)
+    legend.text = element_text(size = 10),
+    legend.background = element_blank()
   ) +
-    scale_x_continuous(breaks = seq(0, 20, by = 2)) +  # More X-axis values
+    scale_color_viridis_d(option = "cividis") +  
+  scale_fill_viridis_d(option = "cividis") +  
+  scale_x_continuous(breaks = seq(0, 20, by = 2)) +  # More X-axis values
   scale_y_continuous(breaks = seq(30, 90, by = 10))  # More Y-axis values
 ```
 
+Load colour blind safe colour scheme
+```{r}
+library(viridis)
+```
+
+# adding a fake set of error data 
+Graph with grid lines and points
+```{r}
+ggplot(data_combined, aes(x = Transects, y = NewSpecies, color = Method, fill = Method)) +
+  geom_point() +
+  geom_ribbon(aes(ymin = NewSpecies - 3, ymax = NewSpecies + 3, fill = Method), alpha = 0.2, color = NA) +
+  geom_smooth(method = "loess", se = TRUE, level = 0.8, linewidth = 1, alpha = 0.5) +
+  labs(x = "Transects (N)", y = "New Species (N)", color = "Sampling Method", fill = "Sampling Method") +
+  theme_minimal() + 
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1),  
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 10),
+    legend.background = element_blank(),
+  ) +
+  scale_color_manual(values = c("BRUVS" = "darkblue", "Trawls" = "darkgreen")) +
+  scale_fill_manual(values = c("BRUVS" = "darkblue", "Trawls" = "darkgreen")) +
+  scale_x_continuous(breaks = seq(0, 20, by = 2)) +  # More X-axis values
+  scale_y_continuous(breaks = seq(30, 90, by = 10))  # More Y-axis values
+```
+
+Graph without gridlines or points
+
+Change order of the legend so it matches graph:
+```{r}
+data_combined$Method <- factor(data_combined$Method, levels = c("Trawls", "BRUVS"))
+```
+
+```{r}
+ggplot(data_combined, aes(x = Transects, y = NewSpecies, color = Method, fill = Method)) +
+  geom_ribbon(aes(ymin = NewSpecies - 3, ymax = NewSpecies + 3, fill = Method), alpha = 0.2, color = NA) +
+  geom_smooth(method = "loess", se = TRUE, level = 0.8, linewidth = 1, alpha = 0.5) +
+  labs(x = "Transects (N)", y = "New Species (N)", color = "Sampling Method", fill = "Sampling Method") +
+  theme_classic() + 
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1),  
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 10),
+    legend.background = element_blank(),
+  ) +
+  scale_color_manual(values = c("Trawls" = "darkgreen", "BRUVS" = "darkblue")) +  
+  scale_fill_manual(values = c("Trawls" = "darkgreen", "BRUVS" = "darkblue")) +
+  scale_x_continuous(breaks = seq(0, 20, by = 2)) +  # More X-axis values
+  scale_y_continuous(breaks = seq(30, 90, by = 10))  # More Y-axis values
+```
+
+
+Try a different method to make error more realistic
+```{r}
+ggplot(data_combined, aes(x = Transects, y = NewSpecies, color = Method, fill = Method)) +
+  geom_ribbon(aes(
+    ymin = NewSpecies - (5 / sqrt(Transects)),  # Larger error at low Transects, smaller at high Transects
+    ymax = NewSpecies + (5 / sqrt(Transects)),  
+    fill = Method
+  ), alpha = 0.2, color = NA) +
+  geom_smooth(method = "loess", se = TRUE, level = 0.8, linewidth = 1, alpha = 0.5) +
+  labs(x = "Transects (N)", y = "New Species (N)", color = "Sampling Method", fill = "Sampling Method") +
+  theme_classic() + 
+  theme(
+    panel.border = element_rect(color = "black", fill = NA, size = 1),  
+    axis.text = element_text(size = 12),
+    axis.title = element_text(size = 12, face = "bold"),
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 10),
+    legend.background = element_blank(),
+  ) +
+  scale_color_manual(values = c("Trawls" = "darkgreen", "BRUVS" = "darkblue")) +  
+  scale_fill_manual(values = c("Trawls" = "darkgreen", "BRUVS" = "darkblue")) +
+  scale_x_continuous(breaks = seq(0, 20, by = 2)) +  # More X-axis values
+  scale_y_continuous(breaks = seq(30, 90, by = 10))  # More Y-axis values
+
+```
 
 # Part 3. Reconstruct a better version of the plot.
 Fix the problems you described in your caption for the original plot. You will need to make an entirely new version of the plot using the skills you’ll learn in tomorrow's workshop. 
@@ -105,5 +189,10 @@ Don’t restrict yourself to the form of the original plot. Sometimes the data a
 Add more information to the plot to help convey the message more clearly. This could be additional data, reference markers or useful labels. Use the scientific literature for your guide (see some examples in the journal Nature)
 Finally, write out a detailed caption for your new version of the plot. Describe it clearly, pointing out its main features and state the message to be gleaned from your plots. Include references or any other new data sources used in your plot.
 Your e-portfolio will ultimately include the original plot and caption, and your new, better version of the plot immediately underneath. 
+
+# Caption:
+
+Accumulation of new species with successive transects by each sampling method (BRUVS and Trawls), based on repeated, random selection of ordering of sample transects, 
+
 
 #Due date. This component of your e-portfolio should be ready to share in workshop 3 for this module, where we will have an interactive session to parade the plots to the class.  
