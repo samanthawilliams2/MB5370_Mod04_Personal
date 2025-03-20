@@ -175,6 +175,7 @@ ggplot(data_combined, aes(x = Transects, y = NewSpecies, color = Method, fill = 
     legend.title = element_text(size = 12, face = "bold"),
     legend.text = element_text(size = 10),
     legend.background = element_blank(),
+    legend.position = c(0.82, 0.22) # Puts the legened inside the graph
   ) +
   scale_color_manual(values = c("Trawls" = "darkgreen", "BRUVS" = "darkblue")) +  
   scale_fill_manual(values = c("Trawls" = "darkgreen", "BRUVS" = "darkblue")) +
@@ -185,14 +186,20 @@ ggplot(data_combined, aes(x = Transects, y = NewSpecies, color = Method, fill = 
 
 # Part 3. Reconstruct a better version of the plot.
 Fix the problems you described in your caption for the original plot. You will need to make an entirely new version of the plot using the skills you’ll learn in tomorrow's workshop. 
+
 Don’t restrict yourself to the form of the original plot. Sometimes the data are not in the form of what you need for a better plot - we will learn in workshop 3 how to ‘tidy’ datasets.
 Add more information to the plot to help convey the message more clearly. This could be additional data, reference markers or useful labels. Use the scientific literature for your guide (see some examples in the journal Nature)
 Finally, write out a detailed caption for your new version of the plot. Describe it clearly, pointing out its main features and state the message to be gleaned from your plots. Include references or any other new data sources used in your plot.
 Your e-portfolio will ultimately include the original plot and caption, and your new, better version of the plot immediately underneath. 
 
+Original plot problems/caption:
+We didn't like the error bars and found it hard to read. Also hard to distinguish between sampling methods. 
+
+
+Species accumulation showing the number of new species detected with increasing transects for each sampling method (BRUVS and Trawls). Curves are based on repeated randomization of transect order, with error bars representing variability in species accumulation. However, the original plot had several issues: (1) The lack of color or line differentiation made it difficult to distinguish between methods, (2) The error bars appeared cluttered and inconsistent, making it challenging to interpret variability, and (3) The absence of a legend required direct labeling of lines, which is less clear in complex figures. 
+
 # Caption:
-
-Accumulation of new species with successive transects by each sampling method (BRUVS and Trawls), based on repeated, random selection of ordering of sample transects, 
-
+Species accumulation curves showing the number of new species detected with increasing transects for each sampling method (BRUVS and Trawls). Curves are based on repeated randomization of transect order, with shaded regions representing variability in species accumulation.
+This revised version improves aspects by using colorblind-friendly colours, smoother confidence intervals, and a clearer legend for readability. Axis lines have also been tidied, by changing the theme to classic, making them bold and editing lablels. 
 
 #Due date. This component of your e-portfolio should be ready to share in workshop 3 for this module, where we will have an interactive session to parade the plots to the class.  
