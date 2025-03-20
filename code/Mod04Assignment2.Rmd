@@ -1,0 +1,19 @@
+---
+title: "Mod04Assignment2"
+author: "Samantha Williams"
+date: '2025-03-20'
+output: html_document
+---
+
+#### 3.10 Assignment: End-to-end data analysis in R
+This task is designed to show you how you can now take any dataset and use your skills as a marine data scientist to build impressive analyses and data visualisations that you can share with end-users.
+
+In this assignment, we will use real-world marine data collected as part of Queensland fisheries QFISH database to develop a report (either written on your website or via an R Markdown report embedded in your website) suitable for reporting to your manager, a community group or for your own research.
+
+# Part 1. First, obtain your data. 
+
+# Part 2. Tidy the data
+
+# Part 3. Add your plot and markdown report to your e-portfolio
+
+# Due date. This component of your e-portfolio is due at the normal e-portfolio due date, the Friday following the final workshop for this module.

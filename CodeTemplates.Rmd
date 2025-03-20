@@ -15,4 +15,14 @@ ggplot(data = <DATA>) +
   <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
 ```
 
+Updated plot template for a more complex plot with position adjustments, stats, and faceting.
+```{r}
+ggplot(data = <DATA>) + 
+  <GEOM_FUNCTION>(
+     mapping = aes(<MAPPINGS>),
+     stat = <STAT>, 
+     position = <POSITION>
+  ) +
+  <FACET_FUNCTION>
+```
 

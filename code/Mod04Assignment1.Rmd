@@ -198,8 +198,9 @@ We didn't like the error bars and found it hard to read. Also hard to distinguis
 
 Species accumulation showing the number of new species detected with increasing transects for each sampling method (BRUVS and Trawls). Curves are based on repeated randomization of transect order, with error bars representing variability in species accumulation. However, the original plot had several issues: (1) The lack of color or line differentiation made it difficult to distinguish between methods, (2) The error bars appeared cluttered and inconsistent, making it challenging to interpret variability, and (3) The absence of a legend required direct labeling of lines, which is less clear in complex figures. 
 
-# Caption:
+# Caption: need to talk about adding a ribbon for confience interval because we didn't use the actual data as it was too hard to export. We identify this as a limitation of what we have done here. 
 Species accumulation curves showing the number of new species detected with increasing transects for each sampling method (BRUVS and Trawls). Curves are based on repeated randomization of transect order, with shaded regions representing variability in species accumulation.
 This revised version improves aspects by using colorblind-friendly colours, smoother confidence intervals, and a clearer legend for readability. Axis lines have also been tidied, by changing the theme to classic, making them bold and editing lablels. 
 
-#Due date. This component of your e-portfolio should be ready to share in workshop 3 for this module, where we will have an interactive session to parade the plots to the class.  
+#Due date. This component of your e-portfolio should be ready to share in workshop 3 for this module, where we will have an interactive session to parade the plots to the class.  Your e-portfolio will ultimately include the original plot and caption, and your new, better version of the plot immediately underneath. 
+
