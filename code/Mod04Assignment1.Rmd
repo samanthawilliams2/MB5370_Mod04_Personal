@@ -1,0 +1,37 @@
+---
+title: 'Assignment: Plot Deconstruction'
+author: "Samantha Williams"
+date: '2025-03-19'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Graphical Storytelling in R.
+Exercise: Plot Deconstruction
+
+# Part 1. Choose your data. 
+Find a plot online, either in a scientific journal, a newspaper, or some other place (e.g. the world bank data portal) which:
+Interests you and your partner.
+You can improve on the plot. 
+
+The data in the plot are complex enough for you to create an interesting graphic. I recommend at least two variables, perhaps more.
+Post the URL of your chart to our subject Google Doc. Make sure no-one else has chosen the same plot as you.
+
+# Part 2. Deconstruct the plot. 
+Take a screenshot of the original plot
+Think about the message of the plot, what were the authors trying to show?
+Find at least two problems with the plot. Perhaps the visualisation is faulty (bar plot for continuous data, poor colour schemes, hidden outliers etc)
+Write a caption for your plot that describes the message of the plot and the problems you found with it.
+Download the data for the plot. To do this, you can either find their source data or use a manual data digitisation tool https://automeris.io/WebPlotDigitizer/ ) to build your CSV. This app allows you to upload a jpg of your plot, then follow the instructions to harvest data points from it.
+
+# Part 3. Reconstruct a better version of the plot.
+Fix the problems you described in your caption for the original plot. You will need to make an entirely new version of the plot using the skills you’ll learn in tomorrow's workshop. 
+Don’t restrict yourself to the form of the original plot. Sometimes the data are not in the form of what you need for a better plot - we will learn in workshop 3 how to ‘tidy’ datasets.
+Add more information to the plot to help convey the message more clearly. This could be additional data, reference markers or useful labels. Use the scientific literature for your guide (see some examples in the journal Nature)
+Finally, write out a detailed caption for your new version of the plot. Describe it clearly, pointing out its main features and state the message to be gleaned from your plots. Include references or any other new data sources used in your plot.
+Your e-portfolio will ultimately include the original plot and caption, and your new, better version of the plot immediately underneath. 
+
+#Due date. This component of your e-portfolio should be ready to share in workshop 3 for this module, where we will have an interactive session to parade the plots to the class.  
