@@ -35,26 +35,19 @@ library(dplyr) # data manipulation
 library(tidyr)  # for tidying
 ```
 
-Load CSV file:
-```{r}
-sharkdata_raw <- read_csv("data/sharkdata.csv", col_names = FALSE)
-```
-
-```{r}
-head(sharkdata_raw)
-```
-
-
-# Part 2. Tidy the data
+Load CSV file & begin to clean:
 
 
 ```{r}
 sharkdata_raw <- 
-  read_csv("data/sharkdata.csv") |>
+  read_csv("data/sharkdata_updated.csv") |>
   row_to_names(row_number = 2, remove_rows_above = FALSE) |> 
   clean_names()
 head(sharkdata_raw)
 ```
+
+# Part 2. Tidy the data
+
 
 Create new tables for each species (isolate them):
 ```{r}
@@ -145,6 +138,12 @@ other_stats <-
   mutate(Taxa = "Other")
 ```
 
+Combine statitsics into one table:
+
+```{r}
+combined_stats <- 
+  bind_rows(shark_stats, turtle_stats, mammal_stats, other_stats)
+```
 
 
 # Part 3. Add your plot and markdown report to your e-portfolio
