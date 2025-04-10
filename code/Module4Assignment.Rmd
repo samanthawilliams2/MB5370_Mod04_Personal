@@ -1,0 +1,213 @@
+---
+title: "Module 4 Assignment"
+author: "Samantha Williams"
+date: '2025-03-20'
+output: html_document
+---
+
+### 3.10 Assignment: End-to-end data analysis in R 
+For this report, real-world marine data collected as part of Queensland fisheries QFISH database was used.
+
+#### Part 1. Obtaining Data
+For this report, real-world marine data were sourced from the Queensland Government's [QFISH database](https://qfish.fisheries.qld.gov.au/), a publicly available resource that compiles commercial and recreational fisheries data. The dataset, sourced from the [Shark Control Program](https://qfish.fisheries.qld.gov.au/query/number-caught-by-area-calendar-year-and-species-group/table#), was used to explore patterns in species catch across areas and calendar years.
+
+#### Part 2. Tidy the data
+Before commencing the analysis, the raw dataset was transformed into a tidy format to ensure it was suitable for statistical exploration and visualization. The following steps outline the data wrangling process:
+
+Install and load necessary packages:
+```{r, eval = FALSE}
+install.packages("tidyverse") # Rools for data cleaning, transformation, and plotting
+
+install.packages("janitor") # Helpful functions for cleaning messy data (e.g., column names)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(janitor)
+library(viridis) # Colours for graphing
+```
+
+
+Load CSV file & begin to clean:
+```{r message=FALSE, warning=FALSE}
+sharkdata_raw <- 
+  read_csv("../data/sharkdata_updated.csv") |>
+  row_to_names(row_number = 2, remove_rows_above = FALSE) |> 
+  clean_names()   # Standardise column names
+```
+
+Create new tables for each species (isolate them):
+```{r}
+sharkdata <- 
+  sharkdata_raw |>
+  select(area, contains("shark")) |> # select all everything with "shark" in 'area' row
+  row_to_names(row_number = 1) |> # Use the first row of this subset as the new column names
+  rename(Area = 1) |>  # Capitalise the first column 
+  mutate(across(-c(Area), as.numeric)) # convert all to numeric except for 'Area'
+  
+turtledata <-
+  sharkdata_raw |>
+  select(area, contains("turtle")) |>
+  row_to_names(row_number = 1) |>
+  rename(Area = 1) |>
+  mutate(across(-c(Area), as.numeric))
+
+mammaldata <- 
+  sharkdata_raw |>
+  select(area, contains("mammal")) |>
+  row_to_names(row_number = 1) |>
+  rename(Area = 1) |>
+  mutate(across(-c(Area), as.numeric))
+
+otherdata <-
+  sharkdata_raw |>
+  select(area, contains("other")) |>
+  row_to_names(row_number = 1) |>
+  rename(Area = 1) |>
+  mutate(across(-c(Area), as.numeric))
+```
+
+Convert into long format:
+```{r}
+sharkdata_long <- 
+  sharkdata |>
+  pivot_longer(!Area, names_to = "Year", values_to = "Count") |>
+  mutate(Taxa = "Sharks") # Add a new column for Taxa for later processing
+
+turtledata_long <- 
+  turtledata |>
+  pivot_longer(!Area, names_to = "Year", values_to = "Count") |>
+  mutate(Taxa = "Turtles")
+
+mammaldata_long <-
+  mammaldata |>
+  pivot_longer(!Area, names_to = "Year", values_to = "Count") |>
+  mutate(Taxa = "Mammals")
+
+otherdata_long <-
+  otherdata |>
+  pivot_longer(!Area, names_to = "Year", values_to = "Count") |>
+  mutate(Taxa = "Other")
+```
+
+#### Part 3. Basic Statistics 
+Summarise data by computing mean and standard deviation, and add a Taxa identifier:
+```{r}
+shark_stats <- 
+  sharkdata_long |>
+  filter(Area != "Grand Total") |> # Removes unecessary row
+  group_by(Year) |> # Organise data by each unique year
+  summarise(Mean = mean(Count, na.rm = TRUE), # Calculate Mean
+            SD = sd(Count, na.rm = TRUE)) |> # Calculate Standard Deviation from the Mean
+  mutate(Year = as.numeric(Year)) |>
+  mutate(Taxa = "Sharks") # Adds a column for taxa 
+
+turtle_stats <- 
+  turtledata_long |>
+  filter(Area != "Grand Total") |>
+  group_by(Year) |>
+  summarise(Mean = mean(Count, na.rm = TRUE),
+            SD = sd(Count, na.rm = TRUE)) |>
+  mutate(Year = as.numeric(Year)) |>
+  mutate(Taxa = "Turtles")
+
+mammal_stats <- 
+  mammaldata_long |>
+  filter(Area != "Grand Total") |>
+  group_by(Year) |>
+  summarise(Mean = mean(Count, na.rm = TRUE),
+            SD = sd(Count, na.rm = TRUE)) |>
+  mutate(Year = as.numeric(Year)) |>
+  mutate(Taxa = "Mammals")
+
+other_stats <-
+  otherdata_long |>
+  filter(Area != "Grand Total") |>
+  group_by(Year) |>
+  summarise(Mean = mean(Count, na.rm = TRUE),
+            SD = sd(Count, na.rm = TRUE)) |>
+  mutate(Year = as.numeric(Year)) |>
+  mutate(Taxa = "Other")
+```
+
+Combine statistics into one table:
+```{r}
+combined_stats <- 
+  bind_rows(shark_stats, turtle_stats, mammal_stats, other_stats)
+```
+
+Combined taxa count data:
+```{r}
+combined_data <-
+  bind_rows(sharkdata_long, turtledata_long, mammaldata_long, otherdata_long) |>
+  mutate(Year = as.integer(Year))
+```
+
+#### Part 4. Plotting Data
+
+Create plot for mean species caught:
+```{r annual-catch-plot, message=FALSE, warning=FALSE}
+annual_catch_plot <- ggplot(data = combined_stats, aes(x = Year, y = Mean, color = Taxa)) +
+  geom_pointrange(aes(ymin = Mean - SD, ymax = Mean + SD),
+                  position = position_dodge(width = 0.5)) +
+  labs(y = "Mean Annual Catch", color = "Taxa") +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 11),
+    axis.title = element_text(size = 13, face = "bold"),
+    legend.title = element_text(size = 12, face = "bold"),
+    legend.text = element_text(size = 10),
+    panel.border = element_rect(color = "black", fill = NA, size = 1)
+  ) +
+  scale_color_viridis_d(option = "D")
+```
+
+
+Create plot for species caught at each location:
+```{r taxa-trends-plot, message=FALSE, warning=FALSE}
+taxa_trends_plot <- ggplot(combined_data, aes(x = Year, y = Count, color = Area)) +
+  geom_line() +
+  labs(
+    color = "Area",
+    y = "Taxa Caught") +
+  facet_wrap(~ Taxa, ncol = 2) +
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+    axis.title = element_text(size = 13, face = "bold"),
+    strip.text = element_text(size = 12, face = "bold"),
+    legend.position = "bottom",
+    legend.title = element_text(size = 11, face = "bold"),
+    legend.text = element_text(size = 9)
+  )
+```
+
+
+#### Part 5. Outputs
+Could not upload a markdown document for figures so for reference this is the code to add figure captions and dimensions:
+Figure 1.
+```{r}
+# ```{r annual-catch-output, fig.cap="Figure 1. Mean annual catch (± SD) of marine taxa recorded by the Queensland Shark Control Program from 2001 to 2025. Each point represents the average number of individuals caught per year across all regions for a given taxonomic group (Mammals, Other, Sharks, and Turtles). Shark catch rates were consistently higher than those of other groups throughout the time series.", fig.height=120/25.4, fig.width=170/25.4, message=FALSE, warning=FALSE}
+#annual_catch_plot 
+# ```
+```
+
+Figure 2.
+```{r}
+#```{r taxa-trends-output, fig.cap="Figure 2. Trends in taxa caught across Queensland regions from 2001 to 2025. The data are faceted by taxonomic group (Mammals, Other, Sharks, Turtles), fig.width=170/25.4, message=FALSE, warning=FALSE, with coloured lines representing different catch areas. Shark catches are consistently higher than other groups, particularly in Mackay.", fig.height=120/25.4, message=FALSE, warning=FALSE}
+#taxa_trends_plot
+#```
+```
+
+Export figures:
+```{r message=FALSE, warning=FALSE}
+ggsave("annual_catch_plot.png", plot = annual_catch_plot, device = "png", width = 170, height = 120, units = "mm", dpi = 300)
+```
+
+```{r message=FALSE, warning=FALSE}
+ggsave("taxa_trends_plot.png", plot = taxa_trends_plot, device = "png", width = 170, height = 120, units = "mm", dpi = 300)
+```
+
+
+
+
