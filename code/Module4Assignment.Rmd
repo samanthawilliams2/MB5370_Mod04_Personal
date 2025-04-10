@@ -194,14 +194,14 @@ Figure 1.
 
 Figure 2.
 ```{r}
-#```{r taxa-trends-output, fig.cap="Figure 2. Trends in taxa caught across Queensland regions from 2001 to 2025. The data are faceted by taxonomic group (Mammals, Other, Sharks, Turtles), fig.width=170/25.4, message=FALSE, warning=FALSE, with coloured lines representing different catch areas. Shark catches are consistently higher than other groups, particularly in Mackay.", fig.height=120/25.4, message=FALSE, warning=FALSE}
+#```{r taxa-trends-output, fig.cap="Figure 2. Trends in taxa caught across Queensland regions from 2001 to 2025. The data are faceted by taxonomic group (Mammals, Other, Sharks, Turtles), with coloured lines representing different catch areas. Shark catches are consistently higher than other groups, particularly in Mackay.", fig.height=120/25.4, fig.width=170/25.4, message=FALSE, warning=FALSE}
 #taxa_trends_plot
 #```
 ```
 
 Export figures:
 ```{r message=FALSE, warning=FALSE}
-ggsave("annual_catch_plot.png", plot = annual_catch_plot, device = "png", width = 170, height = 120, units = "mm", dpi = 300)
+ggsave("annual_catch_plot.png", plot = annual_catch_plot, device = "png", width = 240, height = 160, units = "mm", dpi = 300)
 ```
 
 ```{r message=FALSE, warning=FALSE}
