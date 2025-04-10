@@ -205,9 +205,8 @@ ggsave("annual_catch_plot.png", plot = annual_catch_plot, device = "png", width 
 ```
 
 ```{r message=FALSE, warning=FALSE}
-ggsave("taxa_trends_plot.png", plot = taxa_trends_plot, device = "png", width = 170, height = 120, units = "mm", dpi = 300)
+ggsave("taxa_trends_plot.png", plot = taxa_trends_plot, device = "png", width = 240, height = 160, units = "mm", dpi = 300)
 ```
-
 
 
 
