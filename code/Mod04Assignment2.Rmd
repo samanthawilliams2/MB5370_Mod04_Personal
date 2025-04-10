@@ -6,38 +6,26 @@ output: html_document
 ---
 
 #### 3.10 Assignment: End-to-end data analysis in R
-This task is designed to show you how you can now take any dataset and use your skills as a marine data scientist to build impressive analyses and data visualisations that you can share with end-users.
+For this report, real-world marine data collected as part of Queensland fisheries QFISH database was used.
 
-In this assignment, we will use real-world marine data collected as part of Queensland fisheries QFISH database to develop a report (either written on your website or via an R Markdown report embedded in your website) suitable for reporting to your manager, a community group or for your own research.
+# Part 1. Obtaining Data
+For this report, real-world marine data were sourced from the Queensland Government's [QFISH database](https://qfish.fisheries.qld.gov.au/), a publicly available resource that compiles commercial and recreational fisheries data. The dataset, sourced from the [Shark Control Program](https://qfish.fisheries.qld.gov.au/query/number-caught-by-area-calendar-year-and-species-group/table#), was used to explore patterns in species catch across areas and calendar years.
 
-# Part 1. First, obtain your data. 
+# Part 2. Tidy the data
+Before commencing the analysis, the raw dataset was transformed into a tidy format to ensure it was suitable for statistical exploration and visualization. The following steps outline the data wrangling process:
 
-Install Tidyverse
-```{r}
-install.packages("tidyverse")
-```
-
-
-```{r}
+Install and load necessary packages:
+```{r, eval = FALSE}
+install.packages("tidyverse") # Rools for data cleaning, transformation, and plotting
 library(tidyverse)
-```
 
-```{r}
-install.packages("janitor")
+install.packages("janitor") # Helpful functions for cleaning messy data (e.g., column names)
 library(janitor)
-```
 
-```{r}
-# Do this once
-library(readr) # to read csv files
-library(ggplot2) # to graph
-library(dplyr) # data manipulation
-library(tidyr)  # for tidying
+library(viridis) # Colours for graphing
 ```
 
 Load CSV file & begin to clean:
-
-
 ```{r}
 sharkdata_raw <- 
   read_csv("data/sharkdata_updated.csv") |>
@@ -45,9 +33,6 @@ sharkdata_raw <-
   clean_names()
 head(sharkdata_raw)
 ```
-
-# Part 2. Tidy the data
-
 
 Create new tables for each species (isolate them):
 ```{r}
@@ -84,20 +69,25 @@ Convert into long format
 ```{r}
 sharkdata_long <- 
   sharkdata |>
-  pivot_longer(!Area, names_to = "Year", values_to = "Count")
+  pivot_longer(!Area, names_to = "Year", values_to = "Count") |>
+  mutate(Taxa = "Sharks") # Add a new column for Taxa for later processing
 
 turtledata_long <- 
   turtledata |>
-  pivot_longer(!Area, names_to = "Year", values_to = "Count")
+  pivot_longer(!Area, names_to = "Year", values_to = "Count") |>
+  mutate(Taxa = "Turtles")
 
 mammaldata_long <-
   mammaldata |>
-  pivot_longer(!Area, names_to = "Year", values_to = "Count")
+  pivot_longer(!Area, names_to = "Year", values_to = "Count") |>
+  mutate(Taxa = "Mammals")
 
 otherdata_long <-
   otherdata |>
-  pivot_longer(!Area, names_to = "Year", values_to = "Count")
+  pivot_longer(!Area, names_to = "Year", values_to = "Count") |>
+  mutate(Taxa = "Other")
 ```
+
 
 Statistics - compute mean, standard deviation, and add Taxa column
 ```{r}
@@ -143,6 +133,151 @@ Combine statitsics into one table:
 ```{r}
 combined_stats <- 
   bind_rows(shark_stats, turtle_stats, mammal_stats, other_stats)
+```
+
+
+Combined taxa count data:
+```{r}
+combined_data <-
+  bind_rows(sharkdata_long, turtledata_long, mammaldata_long, otherdata_long) |>
+  mutate(Year = as.integer(Year))
+```
+
+
+Create plot for mean species caught:
+```{r}
+ggplot(data = combined_stats, aes(x = Year, y = Mean, color = Taxa)) +
+  geom_pointrange(aes(ymin = Mean - SD, ymax = Mean + SD),
+                  position = position_dodge(width = 0.5)) +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 11),  # Make axis text bigger
+    axis.title = element_text(size = 13, face = "bold"),  # Bold axis titles
+    legend.title = element_text(size = 12),  # Legend title styling
+    legend.text = element_text(size = 10),  # Legend text styling
+    panel.border = element_rect(color = "black", fill = NA, size = 1)
+  ) +
+  scale_color_viridis_d(option = "D") 
+```
+
+Create plot for species caught at each location:
+
+```{r}
+ggplot(data = combined_data, aes(x = Year, y = Count, color = Area)) +
+  geom_point() +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 11),  # Make axis text bigger
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+    axis.title = element_text(size = 13, face = "bold"),  # Bold axis titles
+    legend.title = element_text(size = 12, face = "bold"),  # Legend title styling
+    legend.text = element_text(size = 10),  # Legend text styling
+    panel.border = element_rect(color = "black", fill = NA, size = 1)
+  ) +
+  scale_color_viridis_d(option = "D") 
+```
+
+
+```{r}
+ggplot(combined_data, aes(x = Year, y = Count, color = Area)) +
+  geom_line() +
+  facet_wrap(~ Taxa, ncol = 2) +  # Facet by Taxa instead of Area
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+    strip.text = element_text(size = 12, face = "bold"),
+    legend.position = "bottom",
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 9)
+  )
+```
+
+
+Try plotting both stats and data together :
+```{r}
+ggplot() +
+  # Raw data by area (faint background lines)
+  geom_line(data = combined_data, aes(x = Year, y = Count, group = Area, color = Taxa),
+            alpha = 0.2, size = 0.6) +
+
+  # Mean + SD overlay from combined_stats
+  geom_pointrange(data = combined_stats,
+                  aes(x = Year, y = Mean, ymin = Mean - SD, ymax = Mean + SD, color = Taxa),
+                  position = position_dodge(width = 0.5), size = 1) +
+
+  theme_classic() +
+  scale_color_viridis_d(option = "D") +
+  labs(
+    title = "Raw strandings by area (faint) with mean ± SD overlay",
+    y = "Count",
+    x = "Year"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 9)
+  )
+```
+
+
+```{r}
+# Merge the two datasets by Year and Taxa
+combined_data_with_stats <- combined_data |>
+  left_join(combined_stats, by = c("Year", "Taxa"))
+```
+
+Recalculate mean and sd per area:
+```{r}
+combined_stats_area <- combined_data |>
+  group_by(Area, Year, Taxa) |>
+  summarise(
+    Mean = mean(Count, na.rm = TRUE),
+    SD = sd(Count, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+
+```{r}
+ggplot(combined_stats_area, aes(x = Year, y = Mean, color = Taxa)) +
+  geom_pointrange(aes(ymin = Mean - SD, ymax = Mean + SD),
+                  position = position_dodge(width = 0.5)) +
+  facet_wrap(~ Area) +
+  theme_classic() +
+  scale_color_viridis_d(option = "D") +
+  labs(
+    title = "Mean ± SD of strandings over time by Area and Taxa",
+    y = "Mean Count ± SD",
+    x = "Year"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+    strip.text = element_text(size = 11, face = "bold"),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 9)
+  )
+```
+
+```{r}
+ggplot(data = combined_stats_area, aes(x = Year, y = Mean, fill = Area)) +
+  geom_point(shape = 21, size = 3, stroke = 0.4, color = "black") +
+  
+  facet_wrap(~ Taxa, ncol = 2) +
+  theme_classic() +
+  scale_fill_viridis_d(option = "D", name = "Area") +
+  labs(
+    title = "Mean ± SD of strandings by Taxa and Area over time",
+    y = "Mean Count ± SD",
+    x = "Year"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+    axis.title = element_text(size = 13, face = "bold"),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 9),
+    strip.text = element_text(face = "bold"),
+    panel.border = element_rect(color = "black", fill = NA, size = 1)
+  )
 ```
 
 
