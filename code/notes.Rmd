@@ -1,0 +1,205 @@
+---
+title: "Additional graphs/notes"
+author: "Samantha Williams"
+date: '2025-04-10'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+ggplot(data = combined_data, aes(x = Year, y = Count, color = Area)) +
+  geom_point() +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 11),  # Make axis text bigger
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+    axis.title = element_text(size = 13, face = "bold"),  # Bold axis titles
+    legend.title = element_text(size = 12, face = "bold"),  # Legend title styling
+    legend.text = element_text(size = 10),  # Legend text styling
+    panel.border = element_rect(color = "black", fill = NA, size = 1)
+  ) +
+  scale_color_viridis_d(option = "D") 
+```
+
+Try plotting both stats and data together :
+```{r}
+ggplot() +
+  # Raw data by area (faint background lines)
+  geom_line(data = combined_data, aes(x = Year, y = Count, group = Area, color = Taxa),
+            alpha = 0.2, size = 0.6) +
+
+  # Mean + SD overlay from combined_stats
+  geom_pointrange(data = combined_stats,
+                  aes(x = Year, y = Mean, ymin = Mean - SD, ymax = Mean + SD, color = Taxa),
+                  position = position_dodge(width = 0.5), size = 1) +
+
+  theme_classic() +
+  scale_color_viridis_d(option = "D") +
+  labs(
+    title = "Raw strandings by area (faint) with mean ± SD overlay",
+    y = "Count",
+    x = "Year"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 9)
+  )
+```
+
+
+```{r}
+# Merge the two datasets by Year and Taxa
+combined_data_with_stats <- combined_data |>
+  left_join(combined_stats, by = c("Year", "Taxa"))
+```
+
+Recalculate mean and sd per area:
+```{r}
+combined_stats_area <- combined_data |>
+  group_by(Area, Year, Taxa) |>
+  summarise(
+    Mean = mean(Count, na.rm = TRUE),
+    SD = sd(Count, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+
+```{r}
+ggplot(combined_stats_area, aes(x = Year, y = Mean, color = Taxa)) +
+  geom_pointrange(aes(ymin = Mean - SD, ymax = Mean + SD),
+                  position = position_dodge(width = 0.5)) +
+  facet_wrap(~ Area) +
+  theme_classic() +
+  scale_color_viridis_d(option = "D") +
+  labs(
+    title = "Mean ± SD of strandings over time by Area and Taxa",
+    y = "Mean Count ± SD",
+    x = "Year"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+    strip.text = element_text(size = 11, face = "bold"),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 9)
+  )
+```
+
+```{r}
+ggplot(data = combined_stats_area, aes(x = Year, y = Mean, fill = Area)) +
+  geom_point(shape = 21, size = 3, stroke = 0.4, color = "black") +
+  
+  facet_wrap(~ Taxa, ncol = 2) +
+  theme_classic() +
+  scale_fill_viridis_d(option = "D", name = "Area") +
+  labs(
+    title = "Mean ± SD of strandings by Taxa and Area over time",
+    y = "Mean Count ± SD",
+    x = "Year"
+  ) +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+    axis.title = element_text(size = 13, face = "bold"),
+    legend.title = element_text(size = 11),
+    legend.text = element_text(size = 9),
+    strip.text = element_text(face = "bold"),
+    panel.border = element_rect(color = "black", fill = NA, size = 1)
+  )
+```
+
+
+
+
+### Part 4. Plotting Data
+Create plot for mean species caught:
+```{r annual-catch, fig.cap="Figure 1. Mean annual catch (± SD) of marine taxa recorded by the Queensland Shark Control Program from 2001 to 2025. Each point represents the average number of individuals caught per year across all regions for a given taxonomic group (Mammals, Other, Sharks, and Turtles). Shark catch rates were consistently higher than those of other groups throughout the time series.", fig.height=120/25.4, fig.width=170/25.4, message=FALSE, warning=FALSE, eval=FALSE}
+ggplot(data = combined_stats, aes(x = Year, y = Mean, color = Taxa)) +
+  geom_pointrange(aes(ymin = Mean - SD, ymax = Mean + SD),
+                  position = position_dodge(width = 0.5)) +
+  labs(y = "Mean Annual Catch", color = "Taxa") +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 11),  # Make axis text bigger
+    axis.title = element_text(size = 13, face = "bold"),  # Bold axis titles
+    legend.title = element_text(size = 12, face = "bold"),  # Legend title styling
+    legend.text = element_text(size = 10),  # Legend text styling
+    panel.border = element_rect(color = "black", fill = NA, size = 1)
+  ) +
+  scale_color_viridis_d(option = "D") 
+```
+
+Create plot for species caught at each location:
+```{r taxa-trends, fig.cap="Figure 2. Trends in taxa caught across Queensland regions from 2001 to 2025. The data are faceted by taxonomic group (Mammals, Other, Sharks, Turtles), fig.width=170/25.4, message=FALSE, warning=FALSE, with coloured lines representing different catch areas. Shark catches are consistently higher than other groups, particularly in Mackay.", fig.height=120/25.4, eval=FALSE}
+ggplot(combined_data, aes(x = Year, y = Count, color = Area)) +
+  geom_line() +
+  labs(
+    color = "Area",
+    y = "Taxa Caught") +
+  facet_wrap(~ Taxa, ncol = 2) +  # Facet by Taxa instead of Area
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+    axis.title = element_text(size = 13, face = "bold"),
+    strip.text = element_text(size = 12, face = "bold"),
+    legend.position = "bottom",
+    legend.title = element_text(size = 11, face = "bold"),
+    legend.text = element_text(size = 9)
+  )
+```
+
+
+
+
+
+
+
+
+
+### Part 5. Outputs
+```{r annual-catch, eval=FALSE, fig.cap="Figure 1. Mean annual catch (± SD) of marine taxa recorded by the Queensland Shark Control Program from 2001 to 2025. Each point represents the average number of individuals caught per year across all regions for a given taxonomic group (Mammals, Other, Sharks, and Turtles). Shark catch rates were consistently higher than those of other groups throughout the time series.", fig.height=120/25.4, fig.width=170/25.4, message=FALSE, warning=FALSE, include=FALSE}
+ggplot(data = combined_stats, aes(x = Year, y = Mean, color = Taxa)) +
+  geom_pointrange(aes(ymin = Mean - SD, ymax = Mean + SD),
+                  position = position_dodge(width = 0.5)) +
+  labs(y = "Mean Annual Catch", color = "Taxa") +
+  theme_classic() +
+  theme(
+    axis.text = element_text(size = 11),  # Make axis text bigger
+    axis.title = element_text(size = 13, face = "bold"),  # Bold axis titles
+    legend.title = element_text(size = 12, face = "bold"),  # Legend title styling
+    legend.text = element_text(size = 10),  # Legend text styling
+    panel.border = element_rect(color = "black", fill = NA, size = 1)
+  ) +
+  scale_color_viridis_d(option = "D") 
+```
+
+
+
+
+```{r taxa-trends, eval=FALSE, fig.cap="Figure 2. Trends in taxa caught across Queensland regions from 2001 to 2025. The data are faceted by taxonomic group (Mammals, Other, Sharks, Turtles), fig.width=170/25.4, message=FALSE, warning=FALSE, with coloured lines representing different catch areas. Shark catches are consistently higher than other groups, particularly in Mackay.", fig.height=120/25.4, include=FALSE}
+ggplot(combined_data, aes(x = Year, y = Count, color = Area)) +
+  geom_line() +
+  labs(
+    color = "Area",
+    y = "Taxa Caught") +
+  facet_wrap(~ Taxa, ncol = 2) +  # Facet by Taxa instead of Area
+  theme_classic() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 9),
+    axis.title = element_text(size = 13, face = "bold"),
+    strip.text = element_text(size = 12, face = "bold"),
+    legend.position = "bottom",
+    legend.title = element_text(size = 11, face = "bold"),
+    legend.text = element_text(size = 9)
+  )
+```
+
+
+
+
+
+
